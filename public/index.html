@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kolekta - Production Ready Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --app-bg: #f8fafc;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+        }
+        
+        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
+        
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(100%); } }
+        
+        .animate-fade-in { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-down { animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .role-btn.active {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        @media (min-width: 768px) {
+            .app-container {
+                max-width: 414px; 
+                margin: 2rem auto;
+                height: 896px;
+                border-radius: 40px;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 12px #0f172a;
+                overflow: hidden;
+                position: relative;
+            }
+        }
+        @media (max-width: 767px) {
+            .app-container {
+                width: 100%;
+                height: 100vh;
+                height: 100dvh;
+            }
+        }
+        
+        .nav-btn.active { color: var(--primary); }
+        .nav-btn.active i { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="text-gray-800 antialiased h-screen w-full flex flex-col items-center justify-center">
+
+    <div class="fixed top-4 right-4 z-[100] flex gap-2 bg-white/90 p-1.5 rounded-full shadow-lg backdrop-blur border border-gray-200 text-xs font-semibold">
+        <button onclick="app.switchRole('student')" id="btn-student" class="role-btn active px-4 py-2 rounded-full transition-all">Student</button>
+        <button onclick="app.switchRole('rep')" id="btn-rep" class="role-btn px-4 py-2 rounded-full transition-all">Rep</button>
+        <button onclick="app.switchRole('admin')" id="btn-admin" class="role-btn px-4 py-2 rounded-full transition-all">Admin</button>
+    </div>
+
+    <div class="app-container w-full bg-[#f8fafc] flex flex-col relative" id="app-root">
+        
+        <header class="glass-header sticky top-0 z-30 px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                    <i data-lucide="wallet" class="w-5 h-5"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">Kolekta</h1>
+            </div>
+            <!-- Avatar is hidden by default for student view -->
+            <button id="user-avatar" class="hidden w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700 font-bold border border-indigo-100 cursor-pointer shadow-sm hover:bg-indigo-100 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" onclick="app.switchTab('profile')">
+                ST
+            </button>
+        </header>
+
+        <main class="flex-1 p-6 relative overflow-y-auto no-scrollbar pb-24" id="main-content"></main>
+
+        <nav id="bottom-nav" class="hidden glass-nav absolute bottom-0 w-full px-6 py-4 flex justify-around items-center z-30 pb-safe">
+            <button onclick="app.switchTab('home')" id="tab-home" class="nav-btn active flex flex-col items-center gap-1 text-slate-400 transition-colors">
+                <i data-lucide="home" class="w-6 h-6 transition-transform"></i>
+                <span class="text-[10px] font-semibold mt-0.5">Home</span>
+            </button>
+            <button onclick="app.switchTab('history')" id="tab-history" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors">
+                <i data-lucide="clock" class="w-6 h-6 transition-transform"></i>
+                <span class="text-[10px] font-medium mt-0.5">History</span>
+            </button>
+            <button onclick="app.switchTab('profile')" id="tab-profile" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors">
+                <i data-lucide="user" class="w-6 h-6 transition-transform"></i>
+                <span class="text-[10px] font-medium mt-0.5">Profile</span>
+            </button>
+        </nav>
+
+        <div id="modal-container"></div>
+        <div id="toast-container" class="absolute bottom-24 left-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    </div>
+
+    <script>
+        const app = {
+            state: {
+                currentRole: 'student',
+                currentTab: 'home',
+                activeTerm: '1st Semester, A.Y. 2023-2024',
+                tasks: [],
+                students: [
+                    { id: '2023-0192', name: 'Steven T.' },
+                    { id: '2023-0441', name: 'Alice Smith' },
+                    { id: '2023-0882', name: 'Mark Johnson' }
+                ],
+                payments: {}
+            },
+
+            init() {
+                this.loadState();
+                if(this.state.tasks.length === 0) this.seedInitialData();
+                this.switchRole('student');
+                lucide.createIcons();
+            },
+
+            loadState() {
+                localStorage.removeItem('kolekta_state');
+                const saved = localStorage.getItem('kolekta_state');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    this.state.tasks = parsed.tasks || [];
+                    this.state.payments = parsed.payments || {};
+                    this.state.activeTerm = parsed.activeTerm || '1st Semester, A.Y. 2023-2024';
+                }
+            },
+
+            saveState() {
+                localStorage.setItem('kolekta_state', JSON.stringify({
+                    tasks: this.state.tasks,
+                    payments: this.state.payments,
+                    activeTerm: this.state.activeTerm
+                }));
+            },
+
+            seedInitialData() {
+                const t1 = this.generateId();
+                const t2 = this.generateId();
+                const t3 = this.generateId();
+                
+                this.state.tasks = [
+                    { id: t1, title: 'Midterm Exam Papers', course: 'CCS114', amount: 50, deadline: '2024-10-12', term: this.state.activeTerm, createdAt: Date.now() },
+                    { id: t2, title: 'Lab Manual Photocopy', course: 'IT201', amount: 120, deadline: '2024-11-05', term: this.state.activeTerm, createdAt: Date.now() - 86400000 },
+                    { id: t3, title: 'Department Shirt', course: 'CS Dept', amount: 350, deadline: '2023-09-01', term: '2nd Semester, A.Y. 2022-2023', createdAt: Date.now() - 31536000000 }
+                ];
+
+                this.state.payments = {
+                    [t1]: { '2023-0192': Date.now() - 86400000, '2023-0882': Date.now() - 43200000 },
+                    [t2]: { '2023-0441': Date.now() - 172800000 },
+                    [t3]: { '2023-0192': Date.now() - 86400000, '2023-0441': Date.now() - 172800000, '2023-0882': Date.now() - 43200000 }
+                };
+                this.saveState();
+            },
+
+            generateId() { return Math.random().toString(36).substr(2, 9); },
+
+            switchRole(role) {
+                this.state.currentRole = role;
+                this.state.currentTab = 'home';
+                
+                document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`btn-${role}`).classList.add('active');
+
+                const avatar = document.getElementById('user-avatar');
+                const bottomNav = document.getElementById('bottom-nav');
+
+                if (role === 'student') {
+                    // Hide auth elements for students
+                    avatar.classList.add('hidden');
+                    bottomNav.classList.remove('flex');
+                    bottomNav.classList.add('hidden');
+                } else {
+                    // Show auth elements for reps and admins
+                    avatar.classList.remove('hidden');
+                    bottomNav.classList.remove('hidden');
+                    bottomNav.classList.add('flex');
+
+                    const styles = {
+                        rep: { text: 'RP', class: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
+                        admin: { text: 'AD', class: 'bg-slate-800 text-white border-slate-700' }
+                    };
+                    avatar.textContent = styles[role].text;
+                    avatar.className = `w-10 h-10 rounded-full flex items-center justify-center font-bold border cursor-pointer shadow-sm hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 ${styles[role].class}`;
+                }
+
+                this.updateNavUI();
+                this.render();
+            },
+
+            switchTab(tab) {
+                this.state.currentTab = tab;
+                this.updateNavUI();
+                this.render();
+            },
+
+            updateNavUI() {
+                if (this.state.currentRole === 'student') return; // Students don't use tabs
+                
+                ['home', 'history', 'profile'].forEach(t => {
+                    const btn = document.getElementById(`tab-${t}`);
+                    if (t === this.state.currentTab) {
+                        btn.classList.add('active');
+                        btn.classList.remove('text-slate-400');
+                    } else {
+                        btn.classList.remove('active');
+                        btn.classList.add('text-slate-400');
+                    }
+                });
+            },
+
+            render() {
+                const main = document.getElementById('main-content');
+                main.innerHTML = '';
+                
+                let content = '';
+                if (this.state.currentRole === 'student') {
+                    content = this.views.studentHome();
+                } else {
+                    if (this.state.currentTab === 'home') {
+                        if (this.state.currentRole === 'rep') content = this.views.repHome();
+                        if (this.state.currentRole === 'admin') content = this.views.adminHome();
+                    } else if (this.state.currentTab === 'history') {
+                        content = this.views.history();
+                    } else if (this.state.currentTab === 'profile') {
+                        content = this.views.profile();
+                    }
+                }
+
+                main.innerHTML = `<div class="animate-fade-in w-full pb-8">${content}</div>`;
+                lucide.createIcons();
+            },
+
+            // --- MAIN VIEWS ---
+            views: {
+                studentHome: () => `
+                    <div class="mb-8 text-center mt-2">
+                        <h2 class="text-2xl font-bold text-slate-900">Check Your Dues</h2>
+                        <p class="text-sm text-slate-500 mt-1">Enter your Student Number to view all history and pending dues. No login required.</p>
+                    </div>
+                    <form onsubmit="event.preventDefault(); app.actions.searchStudent();" class="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 flex items-center focus-within:ring-2 focus-within:ring-indigo-500 transition-all mb-8 relative">
+                        <i data-lucide="search" class="w-5 h-5 text-slate-400 ml-3"></i>
+                        <input type="text" id="student-search-input" placeholder="e.g. 2023-0192" value="2023-0192" class="w-full bg-transparent border-none outline-none px-3 py-2 text-slate-700 font-medium placeholder-slate-400" required>
+                        <button type="submit" id="student-search-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center gap-2">
+                            <span>Search</span>
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin hidden" id="student-search-spinner"></i>
+                        </button>
+                    </form>
+                    <div id="student-results-container"></div>
+                `,
+                repHome: () => `
+                    <div class="flex justify-between items-end mb-6 mt-2">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500">${app.state.activeTerm}</p>
+                            <h2 class="text-2xl font-bold text-slate-900 mt-1">My Collections</h2>
+                        </div>
+                        <button onclick="app.modals.openCreateTask()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3.5 rounded-2xl shadow-lg shadow-indigo-200 transition-all active:scale-95 hover:shadow-xl focus:ring-4 focus:ring-indigo-100 outline-none">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    ${app.components.repDashboardStats()}
+                    <div class="space-y-4 mt-8">
+                        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest mb-3">Active Tasks</h3>
+                        ${app.state.tasks.filter(t => t.term === app.state.activeTerm).length === 0 ? 
+                            `<div class="text-center py-10 bg-white rounded-3xl border border-slate-200 border-dashed">
+                                <i data-lucide="inbox" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+                                <p class="text-sm font-medium text-slate-500">No active collections yet</p>
+                            </div>` : 
+                            app.state.tasks.filter(t => t.term === app.state.activeTerm).map(t => app.components.taskCard(t)).join('')}
+                    </div>
+                `,
+                adminHome: () => `
+                    <div class="mb-6 mt-2">
+                        <h2 class="text-2xl font-bold text-slate-900">System Admin</h2>
+                        <p class="text-sm text-slate-500 mt-1">Global oversight & settings</p>
+                    </div>
+                    <button onclick="app.modals.openTermConfig()" class="w-full text-left bg-slate-900 rounded-3xl p-6 shadow-xl shadow-slate-900/10 text-white mb-8 relative overflow-hidden group hover:bg-slate-800 transition-colors focus:ring-4 focus:ring-slate-300 outline-none">
+                        <div class="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-indigo-500/30 rounded-full blur-2xl group-hover:bg-indigo-500/40 transition-all"></div>
+                        <div class="relative z-10 flex justify-between items-center">
+                            <div>
+                                <p class="text-slate-400 text-[10px] uppercase tracking-widest font-bold mb-1.5">Current Academic Term</p>
+                                <h3 class="text-lg font-bold text-white tracking-wide">${app.state.activeTerm}</h3>
+                            </div>
+                            <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur">
+                                <i data-lucide="settings-2" class="w-5 h-5 text-white"></i>
+                            </div>
+                        </div>
+                    </button>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Recent Activity</h3>
+                        <button onclick="app.switchTab('history')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">View All</button>
+                    </div>
+                    <div class="space-y-3">
+                        ${app.components.activityFeed()}
+                    </div>
+                `,
+                history: () => {
+                    let itemsHTML = '';
+                    
+                    if (app.state.currentRole === 'rep') {
+                        const archivedTasks = app.state.tasks.filter(t => t.term !== app.state.activeTerm);
+                        itemsHTML = archivedTasks.length === 0 
+                            ? `<div class="text-center py-10"><p class="text-slate-500">No archived collections.</p></div>`
+                            : archivedTasks.map(t => app.components.taskCard(t, true)).join('<div class="h-3"></div>');
+                    } else if (app.state.currentRole === 'admin') {
+                        itemsHTML = `
+                            ${app.components.activityFeed(true)}
+                            <div class="opacity-75">
+                                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex gap-4 items-start mt-3">
+                                    <div class="bg-slate-100 p-2 rounded-xl text-slate-600 shrink-0 border border-slate-200 mt-0.5">
+                                        <i data-lucide="archive" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-slate-900 font-medium">Term advanced to ${app.state.activeTerm}</p>
+                                        <p class="text-xs text-slate-500 mt-1">by Admin @system_admin</p>
+                                        <p class="text-[10px] text-slate-400 mt-1">1 week ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    return `
+                    <div class="mb-6 mt-2">
+                        <h2 class="text-2xl font-bold text-slate-900">History Log</h2>
+                        <p class="text-sm text-slate-500 mt-1">Archived records and past activity.</p>
+                    </div>
+                    <div class="mt-6">
+                        ${itemsHTML}
+                    </div>
+                `},
+                profile: () => {
+                    const roles = {
+                        rep: { title: 'Class Representative', email: 'rep.smith@university.edu', badge: 'RP' },
+                        admin: { title: 'System Administrator', email: 'admin@university.edu', badge: 'AD' }
+                    };
+                    const r = roles[app.state.currentRole];
+                    if (!r) return '';
+                    
+                    return `
+                    <div class="mb-6 mt-2">
+                        <h2 class="text-2xl font-bold text-slate-900">Profile Settings</h2>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 text-center mb-6 relative overflow-hidden">
+                        <div class="absolute inset-x-0 top-0 h-16 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+                        <div class="w-20 h-20 bg-white rounded-full mx-auto relative z-10 flex items-center justify-center p-1 shadow-md mt-4">
+                            <div class="w-full h-full rounded-full bg-slate-100 flex items-center justify-center text-2xl font-bold text-slate-600 border border-slate-200">
+                                ${r.badge}
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mt-4">${app.state.currentRole === 'rep' ? 'Rep Smith' : 'System Admin'}</h3>
+                        <p class="text-sm text-slate-500">${r.email}</p>
+                        <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full mt-3 border border-indigo-100">${r.title}</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                            <button class="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors" onclick="app.showToast('Account settings tapped')">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="settings" class="w-5 h-5 text-slate-400"></i>
+                                    <span class="font-medium text-slate-700">Account Preferences</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+                            </button>
+                            <div class="h-px w-full bg-slate-100"></div>
+                            <button class="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors" onclick="app.showToast('Notifications tapped')">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="bell" class="w-5 h-5 text-slate-400"></i>
+                                    <span class="font-medium text-slate-700">Notifications</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+                            </button>
+                            <div class="h-px w-full bg-slate-100"></div>
+                            <button class="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors" onclick="app.showToast('Security tapped')">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="shield" class="w-5 h-5 text-slate-400"></i>
+                                    <span class="font-medium text-slate-700">Security & Privacy</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+                            </button>
+                        </div>
+                        
+                        <button class="w-full bg-white rounded-2xl border border-red-200 px-5 py-4 flex items-center gap-3 text-red-600 font-bold shadow-sm hover:bg-red-50 transition-colors" onclick="app.showToast('Logging out...', 'success'); setTimeout(()=>app.switchTab('home'), 1000);">
+                            <i data-lucide="log-out" class="w-5 h-5"></i>
+                            <span>Log Out</span>
+                        </button>
+                    </div>
+                `}
+            },
+
+            components: {
+                taskCard: (task, isArchived = false) => {
+                    const totalStudents = app.state.students.length;
+                    const payments = app.state.payments[task.id] || {};
+                    const paidCount = Object.values(payments).filter(v => v).length;
+                    const percent = Math.round((paidCount / totalStudents) * 100) || 0;
+                    
+                    return `
+                    <div onclick="app.modals.openTaskDetail('${task.id}')" class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 hover:shadow-md hover:border-indigo-100 cursor-pointer transition-all active:scale-[0.98] focus-within:ring-2 focus-within:ring-indigo-500 outline-none ${isArchived ? 'opacity-80' : ''}" tabindex="0">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-[17px] leading-tight">${task.title}</h4>
+                                <p class="text-xs text-slate-500 font-medium mt-1.5">${task.course} • ${isArchived ? `Archived (${task.term})` : `Due ${new Date(task.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`}</p>
+                            </div>
+                            <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-indigo-100">₱${task.amount.toFixed(2)}</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 mb-3 overflow-hidden">
+                            <div class="bg-indigo-500 h-full rounded-full transition-all duration-1000 ease-out" style="width: ${percent}%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs font-medium">
+                            <span class="text-indigo-700 font-semibold flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> ${paidCount} Paid</span>
+                            <span class="text-slate-500">${totalStudents - paidCount} Pending</span>
+                        </div>
+                    </div>`;
+                },
+                repDashboardStats: () => {
+                    let totalCollected = 0;
+                    let pendingDues = 0;
+                    app.state.tasks.filter(t=>t.term === app.state.activeTerm).forEach(t => {
+                        const payments = app.state.payments[t.id] || {};
+                        const paidCount = Object.values(payments).filter(v => v).length;
+                        totalCollected += paidCount * t.amount;
+                        pendingDues += (app.state.students.length - paidCount) * t.amount;
+                    });
+                    return `
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <div class="bg-indigo-600 rounded-3xl p-5 text-white shadow-lg shadow-indigo-600/20 relative overflow-hidden">
+                            <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full"></div>
+                            <p class="text-indigo-200 text-[10px] uppercase font-bold tracking-widest mb-1.5 relative z-10">Collected</p>
+                            <h3 class="text-2xl font-bold tracking-tight relative z-10">₱${totalCollected.toLocaleString()}</h3>
+                        </div>
+                        <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
+                            <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-1.5">Pending</p>
+                            <h3 class="text-2xl font-bold text-slate-900 tracking-tight">₱${pendingDues.toLocaleString()}</h3>
+                        </div>
+                    </div>`;
+                },
+                activityFeed: (extended = false) => {
+                    let feed = `
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex gap-4 items-start">
+                            <div class="bg-emerald-50 p-2 rounded-xl text-emerald-600 shrink-0 border border-emerald-100 mt-0.5">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-900 font-medium">Payment received from <span class="font-bold">2023-0192</span></p>
+                                <p class="text-xs text-slate-500 mt-1">Processed by @rep_smith • Midterms</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex gap-4 items-start">
+                            <div class="bg-indigo-50 p-2 rounded-xl text-indigo-600 shrink-0 border border-indigo-100 mt-0.5">
+                                <i data-lucide="file-plus" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-900 font-medium">New collection created</p>
+                                <p class="text-xs text-slate-500 mt-1">Lab Manuals added by @rep_jones</p>
+                            </div>
+                        </div>
+                    `;
+                    if (extended) {
+                        feed += `
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex gap-4 items-start">
+                            <div class="bg-amber-50 p-2 rounded-xl text-amber-600 shrink-0 border border-amber-100 mt-0.5">
+                                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-900 font-medium">Payment disputed by <span class="font-bold">2023-0882</span></p>
+                                <p class="text-xs text-slate-500 mt-1">Flagged against @rep_smith</p>
+                            </div>
+                        </div>`;
+                    }
+                    return feed;
+                }
+            },
+
+            // --- ACTIONS ---
+            actions: {
+                searchStudent() {
+                    const input = document.getElementById('student-search-input');
+                    const btn = document.getElementById('student-search-btn').firstElementChild;
+                    const spinner = document.getElementById('student-search-spinner');
+                    const container = document.getElementById('student-results-container');
+                    
+                    const studentId = input.value.trim();
+                    if(!studentId) return;
+
+                    btn.textContent = 'Searching...';
+                    spinner.classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        btn.textContent = 'Search';
+                        spinner.classList.add('hidden');
+                        
+                        const studentExists = app.state.students.some(s => s.id === studentId);
+                        
+                        if (!studentExists) {
+                            container.innerHTML = `
+                                <div class="animate-fade-in text-center py-12 bg-white rounded-3xl shadow-sm border border-slate-200">
+                                    <div class="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                                        <i data-lucide="search-x" class="w-7 h-7"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-slate-900">No records found</h3>
+                                    <p class="text-sm text-slate-500 mt-1">Make sure the ID format is correct.</p>
+                                </div>
+                            `;
+                        } else {
+                            const pending = [];
+                            const paid = [];
+                            const archived = [];
+                            
+                            app.state.tasks.forEach(task => {
+                                const isPaid = app.state.payments[task.id]?.[studentId] || false;
+                                const paidAt = isPaid ? app.state.payments[task.id][studentId] : null;
+                                const isArchived = task.term !== app.state.activeTerm;
+                                const isOverdue = new Date(task.deadline) < new Date() && !isPaid;
+                                
+                                const item = { ...task, isOverdue, isArchived, paidAt };
+                                
+                                if (isArchived) archived.push(item);
+                                else if(isPaid) paid.push(item);
+                                else pending.push(item);
+                            });
+
+                            let html = '<div class="space-y-6 animate-fade-in">';
+                            
+                            if(pending.length > 0) {
+                                html += `<div>
+                                    <h3 class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4"></i> Your Pending Dues</h3>
+                                    <div class="space-y-3">
+                                        ${pending.map(p => `
+                                            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 border-l-4 ${p.isOverdue ? 'border-l-red-500' : 'border-l-amber-400'} flex justify-between items-center cursor-pointer hover:shadow-md transition-shadow" onclick="app.modals.openStudentDueDetail('${p.id}', '${p.isOverdue ? 'Overdue' : 'Pending'}')">
+                                                <div>
+                                                    <h4 class="font-semibold text-slate-900">${p.title}</h4>
+                                                    <p class="text-xs text-slate-500 mt-1">${p.course} • Due ${new Date(p.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <span class="block font-bold text-slate-900">₱${p.amount.toFixed(2)}</span>
+                                                    ${p.isOverdue ? `<span class="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 mt-1 inline-block">Overdue</span>` : ''}
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>`;
+                            }
+
+                            if(paid.length > 0 || archived.length > 0) {
+                                html += `<div>
+                                    <h3 class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2 mt-6"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Your Paid Dues</h3>
+                                    <div class="space-y-3">
+                                        ${[...paid, ...archived].map(p => `
+                                            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 flex justify-between items-center opacity-80 hover:opacity-100 transition-opacity cursor-pointer" onclick="app.modals.openStudentDueDetail('${p.id}', '${p.isArchived ? 'Archived' : 'Paid'}', ${p.paidAt})">
+                                                <div>
+                                                    <h4 class="font-medium text-slate-700 ${!p.isOverdue && !p.isArchived ? 'line-through' : ''}">${p.title}</h4>
+                                                    <p class="text-xs text-slate-400 mt-1">${p.isArchived ? `Archived (${p.term})` : 'Paid'} • ${p.course}</p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <span class="block font-semibold text-slate-500">₱${p.amount.toFixed(2)}</span>
+                                                    ${p.isArchived ? `<span class="text-[10px] text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full mt-1 inline-block border border-slate-300">Archived</span>` : ''}
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>`;
+                            }
+                            
+                            if(pending.length === 0 && paid.length === 0 && archived.length === 0) {
+                                html += `<div class="text-center py-10"><p class="text-slate-500">No dues recorded in your history.</p></div>`;
+                            }
+
+                            html += '</div>';
+                            container.innerHTML = html;
+                        }
+                        lucide.createIcons();
+                    }, 500);
+                },
+
+                createTask(e) {
+                    e.preventDefault();
+                    const title = document.getElementById('new-task-title').value;
+                    const course = document.getElementById('new-task-course').value;
+                    const amount = parseFloat(document.getElementById('new-task-amount').value);
+                    const deadline = document.getElementById('new-task-deadline').value;
+
+                    if(!title || !amount || !deadline) {
+                        app.showToast('Please fill out all required fields', 'error');
+                        return;
+                    }
+
+                    const newTask = {
+                        id: app.generateId(),
+                        title, course: course || 'General', amount, deadline, 
+                        term: app.state.activeTerm, createdAt: Date.now()
+                    };
+
+                    app.state.tasks.unshift(newTask);
+                    app.state.payments[newTask.id] = {};
+                    app.saveState();
+                    app.render();
+                    app.modals.close();
+                    app.showToast('Collection task created successfully');
+                },
+
+                togglePayment(taskId, studentId, isPaid) {
+                    if (!app.state.payments[taskId]) app.state.payments[taskId] = {};
+                    app.state.payments[taskId][studentId] = isPaid ? Date.now() : false;
+                    app.saveState();
+                    
+                    const payments = app.state.payments[taskId];
+                    const paidCount = Object.values(payments).filter(v => v).length;
+                    const stats = document.getElementById('detail-stats');
+                    if (stats) stats.textContent = `${paidCount}/${app.state.students.length} Paid`;
+                },
+                
+                changeTerm(term) {
+                    app.state.activeTerm = term;
+                    app.saveState();
+                    app.render();
+                    app.modals.close();
+                    app.showToast(`Term set to ${term}`);
+                }
+            },
+
+            modals: {
+                container: document.getElementById('modal-container'),
+                
+                open(html) {
+                    this.container.innerHTML = html;
+                    lucide.createIcons();
+                },
+                
+                close() {
+                    const panel = document.getElementById('modal-panel');
+                    if(panel) {
+                        panel.classList.remove('animate-slide-up');
+                        panel.classList.add('animate-slide-down');
+                        setTimeout(() => { this.container.innerHTML = ''; }, 300);
+                    } else {
+                        this.container.innerHTML = '';
+                    }
+                },
+
+                openCreateTask() {
+                    const html = `
+                    <div class="absolute inset-0 z-50 flex flex-col justify-end bg-slate-900/40 backdrop-blur-sm animate-fade-in" onclick="if(event.target === this) app.modals.close()">
+                        <div id="modal-panel" class="bg-white w-full rounded-t-[32px] p-6 animate-slide-up shadow-2xl h-[85%] flex flex-col relative pb-safe">
+                            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-xl font-bold text-slate-900">New Collection</h3>
+                                <button onclick="app.modals.close()" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+                            </div>
+                            
+                            <form onsubmit="app.actions.createTask(event)" class="flex-1 overflow-y-auto no-scrollbar pb-6 space-y-5">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Title <span class="text-red-500">*</span></label>
+                                    <input type="text" id="new-task-title" required placeholder="e.g. Field Trip Fee" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-900">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Amount (₱) <span class="text-red-500">*</span></label>
+                                        <input type="number" step="0.01" id="new-task-amount" required placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-bold text-slate-900">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Course</label>
+                                        <input type="text" id="new-task-course" placeholder="General" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-900 uppercase">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Deadline <span class="text-red-500">*</span></label>
+                                    <input type="date" id="new-task-deadline" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-900">
+                                </div>
+                                
+                                <div class="pt-4">
+                                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-600/30 transition-transform active:scale-[0.98] focus:ring-4 focus:ring-indigo-100">
+                                        Create Collection Task
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>`;
+                    this.open(html);
+                },
+
+                openTaskDetail(taskId) {
+                    const task = app.state.tasks.find(t => t.id === taskId);
+                    if(!task) return;
+                    
+                    const payments = app.state.payments[taskId] || {};
+                    const paidCount = Object.values(payments).filter(v => v).length;
+
+                    const studentRows = app.state.students.map(student => {
+                        const isPaid = payments[student.id] || false;
+                        const initials = student.name.split(' ').map(n=>n[0]).join('');
+                        return `
+                        <label class="flex items-center justify-between p-4 hover:bg-slate-50 cursor-pointer transition-colors group border-b border-slate-100 last:border-0 ${isPaid ? 'bg-indigo-50/30' : ''}" data-student="${student.id}">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${isPaid ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
+                                    ${initials}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-900">${student.name}</p>
+                                    <p class="text-[11px] text-slate-500 font-mono mt-0.5">${student.id}</p>
+                                </div>
+                            </div>
+                            <div class="relative flex items-center">
+                                <input type="checkbox" ${isPaid ? 'checked' : ''} class="w-6 h-6 text-indigo-600 bg-slate-100 border-slate-300 rounded-md cursor-pointer accent-indigo-600" 
+                                    onchange="
+                                        app.actions.togglePayment('${taskId}', '${student.id}', this.checked); 
+                                        const label = this.closest('label');
+                                        const avatar = label.querySelector('.w-10');
+                                        if(this.checked) {
+                                            label.classList.add('bg-indigo-50/30');
+                                            avatar.className = 'w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors bg-indigo-600 text-white';
+                                        } else {
+                                            label.classList.remove('bg-indigo-50/30');
+                                            avatar.className = 'w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors bg-slate-100 text-slate-600 border border-slate-200';
+                                        }
+                                    ">
+                            </div>
+                        </label>`;
+                    }).join('');
+
+                    const html = `
+                    <div class="absolute inset-0 bg-slate-50 z-50 flex flex-col animate-slide-up" id="modal-panel">
+                        <header class="glass-header px-4 py-4 flex items-center gap-3 sticky top-0 z-20">
+                            <button onclick="app.modals.close(); app.render()" class="p-2 rounded-full hover:bg-slate-200/50 text-slate-600">
+                                <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                            </button>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-slate-900 truncate pr-2">${task.title}</h3>
+                                <p class="text-xs text-slate-500 font-medium" id="detail-stats">${paidCount}/${app.state.students.length} Paid</p>
+                            </div>
+                            <div class="bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg font-bold text-sm border border-indigo-200">₱${task.amount}</div>
+                        </header>
+                        <div class="flex-1 overflow-y-auto pb-safe">
+                            <div class="p-4 sticky top-0 bg-slate-50 z-10 border-b border-slate-200">
+                                <div class="bg-white rounded-xl border border-slate-300 flex items-center p-1 focus-within:ring-2 focus-within:ring-indigo-500 shadow-sm">
+                                    <i data-lucide="search" class="w-4 h-4 text-slate-400 ml-3 shrink-0"></i>
+                                    <input type="text" placeholder="Search student..." class="w-full bg-transparent border-none outline-none px-3 py-2 text-sm text-slate-700" 
+                                        oninput="
+                                            const val = this.value.toLowerCase();
+                                            this.closest('.overflow-y-auto').querySelectorAll('label').forEach(el => {
+                                                const text = el.textContent.toLowerCase();
+                                                el.style.display = text.includes(val) ? 'flex' : 'none';
+                                            });
+                                        ">
+                                </div>
+                            </div>
+                            <div class="bg-white">${studentRows}</div>
+                        </div>
+                    </div>`;
+                    this.open(html);
+                },
+
+                openTermConfig() {
+                    const terms = ['1st Semester, A.Y. 2023-2024', '2nd Semester, A.Y. 2023-2024', '1st Semester, A.Y. 2024-2025'];
+                    
+                    const html = `
+                    <div class="absolute inset-0 z-50 flex flex-col justify-end bg-slate-900/40 backdrop-blur-sm animate-fade-in" onclick="if(event.target === this) app.modals.close()">
+                        <div id="modal-panel" class="bg-white w-full rounded-t-[32px] p-6 animate-slide-up shadow-2xl pb-safe">
+                            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
+                            <h3 class="text-xl font-bold text-slate-900 mb-2">Set Active Term</h3>
+                            <p class="text-sm text-slate-500 mb-6">Controls global archiving and default inputs.</p>
+                            
+                            <div class="space-y-3">
+                                ${terms.map(t => {
+                                    const isActive = t === app.state.activeTerm;
+                                    return `
+                                    <button class="w-full p-4 rounded-2xl font-bold text-left flex justify-between items-center transition-all ${isActive ? 'bg-indigo-50 border-2 border-indigo-600 text-indigo-900' : 'bg-white border border-slate-200 text-slate-700 hover:border-indigo-300'}" onclick="app.actions.changeTerm('${t}')">
+                                        <span>${t}</span>
+                                        ${isActive ? `<i data-lucide="check-circle-2" class="w-5 h-5 text-indigo-600"></i>` : ''}
+                                    </button>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>`;
+                    this.open(html);
+                },
+
+                openStudentDueDetail(taskId, statusLabel, paidTimestamp) {
+                    const task = app.state.tasks.find(t => t.id === taskId);
+                    if(!task) return;
+                    
+                    let badgeColor = 'bg-amber-100 text-amber-700 border-amber-200';
+                    if(statusLabel === 'Paid') badgeColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                    if(statusLabel === 'Overdue') badgeColor = 'bg-red-100 text-red-700 border-red-200';
+                    if(statusLabel === 'Archived') badgeColor = 'bg-slate-200 text-slate-700 border-slate-300';
+
+                    const html = `
+                    <div class="absolute inset-0 z-50 flex flex-col justify-end bg-slate-900/40 backdrop-blur-sm animate-fade-in" onclick="if(event.target === this) app.modals.close()">
+                        <div id="modal-panel" class="bg-white w-full rounded-t-[32px] p-6 animate-slide-up shadow-2xl pb-safe relative">
+                            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
+                            
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <span class="inline-block px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border mb-3 ${badgeColor}">
+                                        ${statusLabel}
+                                    </span>
+                                    <h3 class="text-xl font-bold text-slate-900 leading-tight">${task.title}</h3>
+                                    ${(statusLabel === 'Paid' || statusLabel === 'Archived') && paidTimestamp ? `<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1.5">Paid on ${new Date(paidTimestamp).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>` : ''}
+                                </div>
+                                <div class="text-right shrink-0 ml-4">
+                                    <span class="block text-2xl font-bold text-indigo-600">₱${task.amount.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 mb-6 mt-2">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-xs text-slate-500 font-medium mb-1">Course/Group</p>
+                                        <p class="text-sm font-bold text-slate-800">${task.course}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-slate-500 font-medium mb-1">Due Date</p>
+                                        <p class="text-sm font-bold text-slate-800">${new Date(task.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <p class="text-xs text-slate-500 font-medium mb-1">Academic Term</p>
+                                        <p class="text-sm font-bold text-slate-800">${task.term}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <p class="text-xs font-bold text-slate-900 uppercase tracking-widest mb-2">Description</p>
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    This is a collection task for the ${task.course} group during ${task.term}. Please ensure to settle this amount before ${new Date(task.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} to avoid any penalties.
+                                </p>
+                            </div>
+                            
+                            <button onclick="app.modals.close()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-2xl mt-8 transition-transform active:scale-[0.98]">
+                                Close Details
+                            </button>
+                        </div>
+                    </div>`;
+                    this.open(html);
+                }
+            },
+
+            showToast(message, type = 'success') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                
+                const colors = type === 'success' ? 'bg-slate-900 text-white' : 'bg-red-600 text-white';
+                const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+                
+                toast.className = `${colors} p-4 rounded-2xl shadow-xl flex items-center gap-3 animate-slide-up origin-bottom`;
+                toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 opacity-90"></i><p class="font-medium text-sm flex-1">${message}</p>`;
+                
+                container.appendChild(toast);
+                lucide.createIcons();
+
+                setTimeout(() => {
+                    toast.classList.remove('animate-slide-up');
+                    toast.classList.add('animate-slide-down');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => app.init());
+        document.head.insertAdjacentHTML('beforeend', '<style>.pb-safe { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }</style>');
+    </script>
+</body>
+</html>
