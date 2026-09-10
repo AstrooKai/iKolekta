@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="/css/StudentPOV.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+
+            <div class="logo">
+                <h1>iKolekta</h1>
+            </div>
+
+            <div class="name">
+                <p><strong>Welcome!</strong></p>
+            </div>
+
+        </div>
+    </header>
+
+
+    <!-- MAIN CONTENT -->
+    <main>
+
+        <!-- SEARCH SECTION -->
+        <section class="search-section">
+
+            <h1>Check Your Dues</h1>
+
+            <p>
+                Enter your student number to view all history and pending dues.
+                No login required.
+            </p>
+
+            <form>
+                <div class="form-group">
+                    <input
+                        type="text"
+                        id="student-number"
+                        name="student-number"
+                        placeholder="Ex: 2500000"
+                        required
+                    >
+
+                    <button type="submit">
+                        Search
+                    </button>
+                </div>
+            </form>
+
+        </section>
+
+
+        <!-- PENDING DUES -->
+        <section class="pending-section">
+
+            <p class="section-title pending-title">
+                YOUR PENDING DUES
+            </p>
+
+            <div class="dues-list-cards">
+
+                <div class="due-card">
+                    <h3>Lab Manual Photocopy</h3>
+                    <p>CCS110 • Due 11 Sep 2026</p>
+                </div>
+
+                <div class="price-card">
+                    <h3>₱ 50.00</h3>
+                    <p>Pending</p>
+                </div>
+
+            </div>
+
+
+            <div class="dues-list-cards">
+
+                <div class="due-card">
+                    <h3>Lab Examination Paper</h3>
+                    <p>CCS114 • Due 25 Sep 2026</p>
+                </div>
+
+                <div class="price-card">
+                    <h3>₱ 15.00</h3>
+                    <p>Pending</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PAID DUES -->
+        <section class="paid-section">
+
+            <p class="section-title paid-title">
+                YOUR PAID DUES
+            </p>
+
+            <div class="dues-list-cards paid">
+
+                <div class="due-card">
+                    <h3>Preliminary Examination Paper</h3>
+                    <p>CCS110 • Paid 11 Sep 2026</p>
+                </div>
+
+                <div class="price-card">
+                    <h3>₱ 50.00</h3>
+                    <p>Paid</p>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
