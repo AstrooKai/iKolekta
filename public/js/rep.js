@@ -45,7 +45,6 @@ const app = {
     },
 
     loadState() {
-        // localStorage.removeItem('kolekta_state'); // Uncomment to reset state
         const saved = localStorage.getItem('kolekta_state');
         this.state.currentUser = localStorage.getItem('kolekta_user') || '@rep_smith';
         if (saved) {
@@ -100,12 +99,8 @@ const app = {
             document.querySelectorAll(`[data-tab="${t}"]`).forEach(btn => {
                 if (t === this.state.currentTab) {
                     btn.classList.add('active');
-                    btn.classList.remove('text-slate-400', 'text-slate-500');
-                    if(btn.closest('.hidden.md\\:flex')) btn.classList.add('text-indigo-600');
                 } else {
-                    btn.classList.remove('active', 'text-indigo-600');
-                    if(btn.closest('.hidden.md\\:flex')) btn.classList.add('text-slate-500');
-                    else btn.classList.add('text-slate-400');
+                    btn.classList.remove('active');
                 }
             });
         });
@@ -121,57 +116,57 @@ const app = {
         else if (this.state.currentTab === 'history') content = this.views.history();
         else if (this.state.currentTab === 'profile') content = this.views.profile();
 
-        main.innerHTML = `<div class="animate-fade-in w-full pb-8">${content}</div>`;
+        main.innerHTML = `<div class="animate-fade-in w-100 pb-5">${content}</div>`;
         lucide.createIcons();
     },
 
     views: {
         repHome: () => `
-            <div class="flex justify-between items-end mb-6 mt-2">
+            <div class="d-flex justify-content-between align-items-end mb-4 mt-2">
                 <div>
-                    <p class="text-sm font-medium text-slate-500">${app.state.activeTerm}</p>
-                    <h2 class="text-2xl font-bold text-slate-900 mt-1">My Collections</h2>
+                    <p class="small fw-medium text-secondary mb-0">${app.state.activeTerm}</p>
+                    <h2 class="fs-3 fw-bold text-dark mt-1">My Collections</h2>
                 </div>
-                <button onclick="app.modals.openCreateTask()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3.5 rounded-2xl shadow-lg shadow-indigo-200 transition-all active:scale-95 hover:shadow-xl focus:ring-4 focus:ring-indigo-100 outline-none">
-                    <i data-lucide="plus" class="w-5 h-5"></i>
+                <button onclick="app.modals.openCreateTask()" class="btn btn-primary p-3 rounded-4 shadow-sm transition-all">
+                    <i data-lucide="plus" style="width: 20px; height: 20px;"></i>
                 </button>
             </div>
             ${app.components.repDashboardStats()}
-            <div class="mt-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-5 space-y-4 md:space-y-0">
-                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest mb-3 md:col-span-full">Active Collections</h3>
+            <div class="mt-4 row g-3">
+                <h3 class="fs-6 fw-bold text-dark text-uppercase mb-2 col-12" style="letter-spacing: 1px;">Active Collections</h3>
                 ${app.state.tasks.filter(t => t.term === app.state.activeTerm).length === 0 ? 
-                    `<div class="text-center py-10 bg-white rounded-3xl border border-slate-200 border-dashed md:col-span-full">
-                        <i data-lucide="inbox" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
-                        <p class="text-sm font-medium text-slate-500">No active collections yet</p>
+                    `<div class="col-12 text-center py-5 bg-white rounded-4 border border-secondary-subtle" style="border-style: dashed !important;">
+                        <i data-lucide="inbox" style="width: 40px; height: 40px;" class="text-secondary opacity-50 mx-auto mb-2"></i>
+                        <p class="small fw-medium text-secondary">No active collections yet</p>
                     </div>` : 
-                    app.state.tasks.filter(t => t.term === app.state.activeTerm).map(t => app.components.taskCard(t)).join('')}
+                    app.state.tasks.filter(t => t.term === app.state.activeTerm).map(t => `<div class="col-12 col-md-6 col-lg-4">${app.components.taskCard(t)}</div>`).join('')}
             </div>
         `,
         history: () => {
             const archivedTasks = app.state.tasks.filter(t => t.term !== app.state.activeTerm);
             const itemsHTML = archivedTasks.length === 0 
-                ? `<div class="text-center py-10"><p class="text-slate-500">No archived collections.</p></div>`
-                : archivedTasks.map(t => app.components.taskCard(t, true)).join('');
+                ? `<div class="text-center py-5"><p class="text-secondary">No archived collections.</p></div>`
+                : archivedTasks.map(t => `<div class="col-12 col-md-6 col-lg-4">${app.components.taskCard(t, true)}</div>`).join('');
 
             return `
-            <div class="mb-6 mt-2">
-                <h2 class="text-2xl font-bold text-slate-900">History Log</h2>
-                <p class="text-sm text-slate-500 mt-1">Archived records and past activity.</p>
+            <div class="mb-4 mt-2">
+                <h2 class="fs-3 fw-bold text-dark">History Log</h2>
+                <p class="small text-secondary mt-1">Archived records and past activity.</p>
             </div>
-            <div class="mt-6 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-5 space-y-3 md:space-y-0">
+            <div class="mt-4 row g-3">
                 ${itemsHTML}
             </div>
         `},
         profile: () => {
             return `
-            <div class="mb-6 mt-2 text-center md:text-left">
-                <h2 class="text-2xl font-bold text-slate-900">Profile</h2>
-                <p class="text-sm text-slate-500 mt-1">Manage your session.</p>
+            <div class="mb-4 mt-2 text-center text-md-start">
+                <h2 class="fs-3 fw-bold text-dark">Profile</h2>
+                <p class="small text-secondary mt-1">Manage your session.</p>
             </div>
             
-            <div class="flex items-center justify-center py-10 md:py-20">
-                <a href="/login" onclick="app.showToast('Logging out...', 'success')" class="w-full max-w-sm bg-white rounded-2xl border border-red-200 px-5 py-4 flex items-center justify-center gap-3 text-red-600 font-bold shadow-sm hover:bg-red-50 transition-colors text-center">
-                    <i data-lucide="log-out" class="w-5 h-5"></i>
+            <div class="d-flex align-items-center justify-content-center py-5 py-md-5">
+                <a href="/login" onclick="app.showToast('Logging out...', 'success')" class="btn btn-outline-danger bg-white rounded-4 px-4 py-3 d-flex align-items-center justify-content-center gap-2 fw-bold shadow-sm text-decoration-none w-100" style="max-width: 300px;">
+                    <i data-lucide="log-out" style="width: 20px; height: 20px;"></i>
                     <span>Log Out</span>
                 </a>
             </div>
@@ -186,20 +181,22 @@ const app = {
             const percent = Math.round((paidCount / totalStudents) * 100) || 0;
             
             return `
-            <div onclick="app.modals.openTaskDetail('${task.id}')" class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 hover:shadow-md hover:border-indigo-100 cursor-pointer transition-all active:scale-[0.98] focus-within:ring-2 focus-within:ring-indigo-500 outline-none ${isArchived ? 'opacity-80' : ''}" tabindex="0">
-                <div class="flex justify-between items-start mb-4">
+            <div onclick="app.modals.openTaskDetail('${task.id}')" class="bg-white rounded-4 p-4 shadow-sm border border-secondary-subtle cursor-pointer transition-all h-100 d-flex flex-column" tabindex="0" style="${isArchived ? 'opacity: 0.8;' : ''}">
+                <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <h4 class="font-bold text-slate-900 text-[17px] leading-tight">${task.title}</h4>
-                        <p class="text-xs text-slate-500 font-medium mt-1.5">${task.course} • ${isArchived ? `Archived (${task.term})` : `Due ${new Date(task.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`}</p>
+                        <h4 class="fw-bold text-dark m-0" style="font-size: 17px; line-height: 1.2;">${task.title}</h4>
+                        <p class="small text-secondary fw-medium mt-1 mb-0">${task.course} &bull; ${isArchived ? `Archived (${task.term})` : `Due ${new Date(task.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`}</p>
                     </div>
-                    <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-indigo-100">₱${task.amount.toFixed(2)}</span>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 fs-6">&#8369;${task.amount.toFixed(2)}</span>
                 </div>
-                <div class="w-full bg-slate-100 rounded-full h-2 mb-3 overflow-hidden">
-                    <div class="bg-indigo-500 h-full rounded-full transition-all duration-1000 ease-out" style="width: ${percent}%"></div>
+                <div class="progress mb-3 bg-secondary-subtle" style="height: 8px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: ${percent}%;" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                <div class="flex justify-between text-xs font-medium">
-                    <span class="text-indigo-700 font-semibold flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> ${paidCount} Paid</span>
-                    <span class="text-slate-500">${totalStudents - paidCount} Pending</span>
+                <div class="d-flex justify-content-between small fw-medium mt-auto">
+                    <span class="text-primary fw-semibold d-flex align-items-center gap-1">
+                        <i data-lucide="check-circle-2" style="width: 14px; height: 14px;"></i> ${paidCount} Paid
+                    </span>
+                    <span class="text-secondary">${totalStudents - paidCount} Pending</span>
                 </div>
             </div>`;
         },
@@ -213,15 +210,19 @@ const app = {
                 pendingDues += (app.state.students.length - paidCount) * t.amount;
             });
             return `
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="bg-indigo-600 rounded-3xl p-5 text-white shadow-lg shadow-indigo-600/20 relative overflow-hidden">
-                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full"></div>
-                    <p class="text-indigo-200 text-[10px] uppercase font-bold tracking-widest mb-1.5 relative z-10">Collected</p>
-                    <h3 class="text-2xl font-bold tracking-tight relative z-10">₱${totalCollected.toLocaleString()}</h3>
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <div class="bg-primary rounded-4 p-4 text-white shadow-sm position-relative overflow-hidden h-100">
+                        <div class="position-absolute bg-white opacity-10 rounded-circle" style="width: 100px; height: 100px; right: -20px; bottom: -20px;"></div>
+                        <p class="text-white-50 text-uppercase fw-bold mb-1 position-relative z-1" style="font-size: 10px; letter-spacing: 1px;">Collected</p>
+                        <h3 class="fs-2 fw-bold position-relative z-1 mb-0">&#8369;${totalCollected.toLocaleString()}</h3>
+                    </div>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
-                    <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-1.5">Pending</p>
-                    <h3 class="text-2xl font-bold text-slate-900 tracking-tight">₱${pendingDues.toLocaleString()}</h3>
+                <div class="col-6">
+                    <div class="bg-white border border-secondary-subtle rounded-4 p-4 shadow-sm h-100">
+                        <p class="text-secondary text-uppercase fw-bold mb-1" style="font-size: 10px; letter-spacing: 1px;">Pending</p>
+                        <h3 class="fs-2 fw-bold text-dark mb-0">&#8369;${pendingDues.toLocaleString()}</h3>
+                    </div>
                 </div>
             </div>`;
         }
@@ -232,7 +233,7 @@ const app = {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto"></i>';
+            btn.innerHTML = '<i data-lucide="loader-2" class="spinner-border spinner-border-sm mx-auto"></i>';
             btn.disabled = true;
 
             const title = document.getElementById('new-task-title').value;
@@ -325,16 +326,16 @@ const app = {
         openConfirm(title, message, onConfirm, onCancel) {
             const c = this.getConfirmContainer();
             const html = `
-            <div class="fixed inset-0 z-[60] flex flex-col justify-center items-center bg-slate-900/60 backdrop-blur-sm animate-fade-in px-4">
-                <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-slide-up flex flex-col relative">
-                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4">
-                        <i data-lucide="help-circle" class="w-6 h-6"></i>
+            <div class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center modal-backdrop-blur animate-fade-in px-3" style="z-index: 1060;">
+                <div class="bg-white w-100 rounded-4 p-4 shadow-lg animate-slide-up d-flex flex-column position-relative" style="max-width: 400px;">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 48px; height: 48px;">
+                        <i data-lucide="help-circle" style="width: 24px; height: 24px;"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">${title}</h3>
-                    <p class="text-sm text-slate-500 mb-6">${message}</p>
-                    <div class="flex gap-3">
-                        <button id="confirm-cancel-btn" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 rounded-xl transition-colors">Cancel</button>
-                        <button id="confirm-ok-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition-colors">Confirm</button>
+                    <h3 class="fs-5 fw-bold text-dark mb-2">${title}</h3>
+                    <p class="small text-secondary mb-4">${message}</p>
+                    <div class="d-flex gap-2">
+                        <button id="confirm-cancel-btn" class="btn btn-light flex-fill fw-semibold py-2 rounded-3 text-secondary border">Cancel</button>
+                        <button id="confirm-ok-btn" class="btn btn-primary flex-fill fw-semibold py-2 rounded-3">Confirm</button>
                     </div>
                 </div>
             </div>`;
@@ -373,51 +374,54 @@ const app = {
             const courseOptions = app.state.courses.map(c => `<option value="${c}">${c}</option>`).join('');
             
             const studentCheckboxes = app.state.students.map(student => `
-                <label class="flex items-center gap-3 p-2 hover:bg-slate-100 cursor-pointer rounded-xl student-checkbox-item" data-courses="${(student.enrolledCourses || []).join(',')}">
-                    <input type="checkbox" name="target_students" value="${student.id}" checked class="w-5 h-5 text-indigo-600 bg-white border-slate-300 rounded cursor-pointer accent-indigo-600 shadow-sm">
+                <label class="d-flex align-items-center gap-3 p-2 cursor-pointer rounded-3 student-checkbox-item" style="cursor:pointer;" data-courses="${(student.enrolledCourses || []).join(',')}">
+                    <input type="checkbox" name="target_students" value="${student.id}" checked class="form-check-input mt-0 fs-5">
                     <div>
-                        <p class="font-bold text-slate-900 text-sm leading-tight">${student.name}</p>
-                        <p class="text-[10px] text-slate-500 font-mono mt-0.5">${student.id}</p>
+                        <p class="fw-bold text-dark small m-0" style="line-height: 1.2;">${student.name}</p>
+                        <p class="text-secondary mb-0" style="font-size: 10px; font-family: monospace;">${student.id}</p>
                     </div>
                 </label>
             `).join('');
 
             const html = `
-            <div class="fixed inset-0 z-50 flex flex-col justify-end md:justify-center md:items-center bg-slate-900/40 backdrop-blur-sm animate-fade-in" onclick="if(event.target === this) app.modals.close()">
-                <div id="modal-panel" class="bg-white w-full md:max-w-lg rounded-t-[32px] md:rounded-3xl p-6 animate-slide-up shadow-2xl h-[90%] md:h-auto md:max-h-[90vh] flex flex-col relative pb-safe md:pb-6">
-                    <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4 md:hidden"></div>
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-slate-900">New Collection</h3>
-                        <button type="button" onclick="app.modals.close()" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <div class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-end justify-content-md-center align-items-md-center modal-backdrop-blur animate-fade-in" style="z-index: 1050;" onclick="if(event.target === this) app.modals.close()">
+                <div id="modal-panel" class="bg-white w-100 p-4 animate-slide-up shadow-lg d-flex flex-column position-relative" style="max-width: 500px; border-radius: 2rem 2rem 0 0; max-height: 90vh;">
+                    <div class="bg-secondary-subtle rounded-pill mx-auto mb-3 d-md-none" style="width: 48px; height: 6px;"></div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fs-4 fw-bold text-dark m-0">New Collection</h3>
+                        <button type="button" onclick="app.modals.close()" class="btn btn-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
                     </div>
                     
-                    <form onsubmit="app.actions.createTask(event)" class="flex-1 overflow-y-auto no-scrollbar pb-6 space-y-4">
+                    <form onsubmit="app.actions.createTask(event)" class="flex-grow-1 overflow-y-auto no-scrollbar pb-3 d-flex flex-column gap-3">
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Title <span class="text-red-500">*</span></label>
-                            <input type="text" id="new-task-title" required placeholder="e.g. Field Trip Fee" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-900">
+                            <label class="form-label text-secondary fw-bold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 1px;">Title <span class="text-danger">*</span></label>
+                            <input type="text" id="new-task-title" required placeholder="e.g. Field Trip Fee" class="form-control form-control-lg bg-light border-secondary-subtle rounded-4 fs-6 fw-medium text-dark px-3 py-2">
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Amount (₱) <span class="text-red-500">*</span></label>
-                                <input type="number" step="0.01" id="new-task-amount" required placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-bold text-slate-900">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label text-secondary fw-bold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 1px;">Amount (&#8369;) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" id="new-task-amount" required placeholder="0.00" class="form-control form-control-lg bg-light border-secondary-subtle rounded-4 fs-6 fw-bold text-dark px-3 py-2">
                             </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Course</label>
-                                <select id="new-task-course" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-900"
+                            <div class="col-6">
+                                <label class="form-label text-secondary fw-bold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 1px;">Course</label>
+                                <select id="new-task-course" class="form-select form-select-lg bg-light border-secondary-subtle rounded-4 fs-6 fw-medium text-dark px-3 py-2"
                                     onchange="
                                         const selected = this.value;
                                         document.querySelectorAll('.student-checkbox-item').forEach(item => {
                                             const cb = item.querySelector('input');
                                             if (!selected) {
-                                                item.style.display = 'flex';
+                                                item.classList.remove('d-none');
+                                                item.classList.add('d-flex');
                                                 cb.checked = true;
                                             } else {
                                                 const courses = item.getAttribute('data-courses').split(',');
                                                 if(courses.includes(selected)) {
-                                                    item.style.display = 'flex';
+                                                    item.classList.remove('d-none');
+                                                    item.classList.add('d-flex');
                                                     cb.checked = true;
                                                 } else {
-                                                    item.style.display = 'none';
+                                                    item.classList.remove('d-flex');
+                                                    item.classList.add('d-none');
                                                     cb.checked = false;
                                                 }
                                             }
@@ -429,19 +433,19 @@ const app = {
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Deadline <span class="text-red-500">*</span></label>
-                            <input type="date" id="new-task-deadline" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-900">
+                            <label class="form-label text-secondary fw-bold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 1px;">Deadline <span class="text-danger">*</span></label>
+                            <input type="date" id="new-task-deadline" required class="form-control form-control-lg bg-light border-secondary-subtle rounded-4 fs-6 fw-medium text-dark px-3 py-2">
                         </div>
                         
-                        <div class="border-t border-slate-200 pt-4">
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Enrolled Students</label>
-                            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-2 max-h-40 overflow-y-auto space-y-1">
+                        <div class="border-top pt-3">
+                            <label class="form-label text-secondary fw-bold text-uppercase mb-2" style="font-size: 11px; letter-spacing: 1px;">Enrolled Students</label>
+                            <div class="bg-light border border-secondary-subtle rounded-4 p-2 overflow-y-auto" style="max-height: 150px;">
                                 ${studentCheckboxes}
                             </div>
                         </div>
 
-                        <div class="pt-4">
-                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-600/30 transition-transform active:scale-[0.98] focus:ring-4 focus:ring-indigo-100 flex items-center justify-center">
+                        <div class="pt-2 mt-auto">
+                            <button type="submit" class="btn btn-primary w-100 fw-bold py-3 rounded-4 shadow-sm d-flex align-items-center justify-content-center">
                                 Create Collection
                             </button>
                         </div>
@@ -465,28 +469,28 @@ const app = {
                 const isPaid = payments[student.id] || false;
                 const initials = student.name.split(' ').map(n=>n[0]).join('');
                 return `
-                <label class="flex items-center justify-between p-4 hover:bg-slate-50 cursor-pointer transition-colors group border-b border-slate-100 last:border-0 ${isPaid ? 'bg-indigo-50/30' : ''}" data-student="${student.id}">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${isPaid ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
+                <label class="d-flex align-items-center justify-content-between p-3 border-bottom cursor-pointer ${isPaid ? 'bg-primary-subtle' : ''}" style="cursor: pointer;" data-student="${student.id}">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold small shadow-sm transition-colors ${isPaid ? 'bg-primary text-white' : 'bg-light text-secondary border'}" style="width: 40px; height: 40px;">
                             ${initials}
                         </div>
                         <div>
-                            <p class="font-bold text-slate-900">${student.name}</p>
-                            <p class="text-[11px] text-slate-500 font-mono mt-0.5">${student.id}</p>
+                            <p class="fw-bold text-dark m-0">${student.name}</p>
+                            <p class="text-secondary m-0" style="font-size: 11px; font-family: monospace;">${student.id}</p>
                         </div>
                     </div>
-                    <div class="relative flex items-center">
-                        <input type="checkbox" ${isPaid ? 'checked' : ''} class="w-6 h-6 text-indigo-600 bg-slate-100 border-slate-300 rounded-md cursor-pointer accent-indigo-600" 
+                    <div class="d-flex align-items-center">
+                        <input type="checkbox" ${isPaid ? 'checked' : ''} class="form-check-input fs-4 mt-0" 
                             onchange="
                                 app.actions.togglePayment('${taskId}', '${student.id}', this.checked); 
                                 const label = this.closest('label');
-                                const avatar = label.querySelector('.w-10');
+                                const avatar = label.querySelector('.rounded-circle');
                                 if(this.checked) {
-                                    label.classList.add('bg-indigo-50/30');
-                                    avatar.className = 'w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors bg-indigo-600 text-white';
+                                    label.classList.add('bg-primary-subtle');
+                                    avatar.className = 'rounded-circle d-flex align-items-center justify-content-center fw-bold small shadow-sm transition-colors bg-primary text-white';
                                 } else {
-                                    label.classList.remove('bg-indigo-50/30');
-                                    avatar.className = 'w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors bg-slate-100 text-slate-600 border border-slate-200';
+                                    label.classList.remove('bg-primary-subtle');
+                                    avatar.className = 'rounded-circle d-flex align-items-center justify-content-center fw-bold small shadow-sm transition-colors bg-light text-secondary border';
                                 }
                             ">
                     </div>
@@ -494,33 +498,40 @@ const app = {
             }).join('');
 
             const html = `
-            <div class="fixed inset-0 z-50 flex flex-col md:justify-center md:items-center bg-slate-50 md:bg-slate-900/40 md:backdrop-blur-sm animate-fade-in md:p-6" onclick="if(event.target === this) app.modals.close()">
-                <div id="modal-panel" class="bg-slate-50 w-full md:max-w-xl md:h-[85vh] md:max-h-[800px] flex flex-col relative md:rounded-3xl shadow-2xl animate-slide-up h-full overflow-hidden">
-                    <header class="glass-header px-4 py-4 flex items-center gap-3 sticky top-0 z-20 md:border-b md:border-slate-200">
-                        <button onclick="app.modals.close(); app.render()" class="p-2 rounded-full hover:bg-slate-200/50 text-slate-600">
-                        <i data-lucide="arrow-left" class="w-6 h-6"></i>
-                    </button>
-                    <div class="flex-1">
-                        <h3 class="text-lg font-bold text-slate-900 truncate pr-2">${task.title}</h3>
-                        <p class="text-xs text-slate-500 font-medium" id="detail-stats">${paidCount}/${filteredStudents.length} Paid</p>
-                    </div>
-                    <div class="bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg font-bold text-sm border border-indigo-200">₱${task.amount}</div>
-                </header>
-                <div class="flex-1 overflow-y-auto pb-safe">
-                    <div class="p-4 sticky top-0 bg-slate-50 z-10 border-b border-slate-200">
-                        <div class="bg-white rounded-xl border border-slate-300 flex items-center p-1 focus-within:ring-2 focus-within:ring-indigo-500 shadow-sm">
-                            <i data-lucide="search" class="w-4 h-4 text-slate-400 ml-3 shrink-0"></i>
-                            <input type="text" placeholder="Search student..." class="w-full bg-transparent border-none outline-none px-3 py-2 text-sm text-slate-700" 
-                                oninput="
-                                    const val = this.value.toLowerCase();
-                                    this.closest('.overflow-y-auto').querySelectorAll('label').forEach(el => {
-                                        const text = el.textContent.toLowerCase();
-                                        el.style.display = text.includes(val) ? 'flex' : 'none';
-                                    });
-                                ">
+            <div class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center modal-backdrop-blur animate-fade-in p-md-4" style="z-index: 1050;" onclick="if(event.target === this) app.modals.close()">
+                <div id="modal-panel" class="bg-white w-100 h-100 d-flex flex-column position-relative shadow-lg animate-slide-up overflow-hidden rounded-md-4" style="max-width: 600px; max-height: 800px;">
+                    <header class="glass-header px-3 py-3 d-flex align-items-center gap-2 sticky-top z-2 border-bottom">
+                        <button onclick="app.modals.close(); app.render()" class="btn btn-light rounded-circle p-2 d-flex align-items-center justify-content-center border-0 text-secondary" style="width: 40px; height: 40px;">
+                            <i data-lucide="arrow-left" style="width: 24px; height: 24px;"></i>
+                        </button>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <h3 class="fs-5 fw-bold text-dark text-truncate m-0 pe-2">${task.title}</h3>
+                            <p class="small text-secondary fw-medium m-0" id="detail-stats">${paidCount}/${filteredStudents.length} Paid</p>
                         </div>
+                        <div class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6 rounded-3">&#8369;${task.amount}</div>
+                    </header>
+                    <div class="flex-grow-1 overflow-y-auto pb-safe">
+                        <div class="p-3 sticky-top bg-white z-1 border-bottom">
+                            <div class="bg-light rounded-3 border d-flex align-items-center p-2 shadow-sm">
+                                <i data-lucide="search" class="text-secondary ms-2" style="width: 16px; height: 16px;"></i>
+                                <input type="text" placeholder="Search student..." class="form-control bg-transparent border-0 shadow-none px-2 py-1 text-sm text-dark" 
+                                    oninput="
+                                        const val = this.value.toLowerCase();
+                                        this.closest('.overflow-y-auto').querySelectorAll('label').forEach(el => {
+                                            const text = el.textContent.toLowerCase();
+                                            if (text.includes(val)) {
+                                                el.classList.remove('d-none');
+                                                el.classList.add('d-flex');
+                                            } else {
+                                                el.classList.remove('d-flex');
+                                                el.classList.add('d-none');
+                                            }
+                                        });
+                                    ">
+                            </div>
+                        </div>
+                        <div class="bg-white">${studentRows}</div>
                     </div>
-                    <div class="bg-white">${studentRows}</div>
                 </div>
             </div>`;
             this.open(html);
@@ -532,16 +543,23 @@ const app = {
         if(!container) {
             container = document.createElement('div');
             container.id = 'toast-container';
-            container.className = 'absolute bottom-24 left-4 right-4 z-50 flex flex-col gap-2 pointer-events-none';
+            container.className = 'position-fixed bottom-0 start-50 translate-middle-x d-flex flex-column gap-2 pointer-events-none w-100 px-3';
+            container.style.paddingBottom = '5rem'; // Above bottom nav
+            container.style.maxWidth = '400px';
+            container.style.zIndex = '1070';
             document.getElementById('app-root').appendChild(container);
         }
         
         const toast = document.createElement('div');
-        const colors = type === 'success' ? 'bg-slate-900 text-white' : 'bg-red-600 text-white';
+        const colors = type === 'success' ? 'bg-dark text-white' : 'bg-danger text-white';
         const icon = type === 'success' ? 'check-circle' : 'alert-circle';
         
-        toast.className = `${colors} p-4 rounded-2xl shadow-xl flex items-center gap-3 animate-slide-up origin-bottom`;
-        toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 opacity-90"></i><p class="font-medium text-sm flex-1">${message}</p>`;
+        toast.className = `toast align-items-center border-0 show w-100 ${colors} rounded-4 shadow-lg animate-slide-up mb-2`;
+        toast.innerHTML = `
+            <div class="d-flex p-3 align-items-center gap-3">
+                <i data-lucide="${icon}" style="width: 20px; height: 20px; opacity: 0.9;"></i>
+                <div class="toast-body p-0 fw-medium fs-6 flex-grow-1">${message}</div>
+            </div>`;
         
         container.appendChild(toast);
         lucide.createIcons();
@@ -555,4 +573,3 @@ const app = {
 };
 
 document.addEventListener('DOMContentLoaded', () => app.init());
-document.head.insertAdjacentHTML('beforeend', '<style>.pb-safe { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }</style>');

@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>iKolekta - System Admin</title>
     
-    <!-- Tailwind CSS -->
-    <link href="/css/styles.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom Theme CSS -->
+    <link href="/css/theme.css" rel="stylesheet">
     
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -15,7 +17,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #e2e8f0;
+            background-color: #f8f9fa;
             -webkit-tap-highlight-color: transparent;
             overscroll-behavior-y: none;
         }
@@ -46,62 +48,74 @@
         .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-slide-down { animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        .nav-btn.active { color: #4f46e5; }
+        .nav-btn {
+            background: transparent;
+            border: none;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-btn.active { color: #0d6efd !important; }
         .nav-btn.active i { transform: translateY(-2px); }
+        .rounded-4 { border-radius: 1rem !important; }
+        .rounded-5 { border-radius: 1.5rem !important; }
+        .pb-safe { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
     </style>
 </head>
-<body class="text-slate-800 antialiased selection:bg-indigo-100 selection:text-indigo-900">
+<body class="text-dark">
 
-    <div class="app-container relative bg-[#f8fafc] w-full min-h-screen flex flex-col items-center" id="app-root">
+    <div class="position-relative bg-light w-100 vh-100 d-flex flex-column align-items-center" id="app-root">
         
         <!-- Header -->
-        <header class="glass-header sticky top-0 z-30 px-6 py-4 flex justify-between items-center w-full max-w-7xl">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
-                    <i data-lucide="shield" class="w-5 h-5"></i>
+        <header class="glass-header sticky-top w-100 px-4 py-3 d-flex justify-content-between align-items-center z-3" style="max-width: 1200px;">
+            <div class="d-flex align-items-center gap-2">
+                <div class="bg-primary text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 36px; height: 36px; border-radius: 10px;">
+                    <i data-lucide="shield" style="width: 20px; height: 20px;"></i>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight text-slate-900">iKolekta Admin</h1>
+                <h1 class="fs-5 fw-bold text-dark m-0">iKolekta Admin</h1>
             </div>
             
             <!-- Desktop Top Nav -->
-            <nav class="hidden md:flex items-center gap-8 ml-auto mr-8">
-                <button onclick="app.switchTab('home')" data-tab="home" class="nav-btn active flex items-center gap-2 text-slate-500 font-semibold hover:text-indigo-600 transition-colors">
-                    <i data-lucide="layout-dashboard" class="w-5 h-5 transition-transform"></i> Dashboard
+            <nav class="d-none d-md-flex align-items-center gap-4 ms-auto me-4">
+                <button onclick="app.switchTab('home')" data-tab="home" class="nav-btn active d-flex align-items-center gap-2 text-secondary fw-semibold transition-colors">
+                    <i data-lucide="layout-dashboard" style="width: 20px; height: 20px;"></i> Dashboard
                 </button>
-                <button onclick="app.switchTab('history')" data-tab="history" class="nav-btn flex items-center gap-2 text-slate-500 font-semibold hover:text-indigo-600 transition-colors">
-                    <i data-lucide="list-collapse" class="w-5 h-5 transition-transform"></i> Audit Log
+                <button onclick="app.switchTab('history')" data-tab="history" class="nav-btn d-flex align-items-center gap-2 text-secondary fw-semibold transition-colors">
+                    <i data-lucide="list-collapse" style="width: 20px; height: 20px;"></i> Audit Log
                 </button>
             </nav>
 
-            <a href="/login" class="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-50 border border-slate-200 text-slate-600 font-bold hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors text-sm">
-                <i data-lucide="log-out" class="w-4 h-4"></i>
+            <a href="/login" class="d-none d-md-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-white border text-secondary fw-bold text-decoration-none border-secondary-subtle">
+                <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
                 Log Out
             </a>
         </header>
 
         <!-- Dynamic Content Injected Here -->
-        <main class="flex-1 p-5 md:p-8 relative overflow-y-auto no-scrollbar pb-24 w-full max-w-7xl" id="main-content"></main>
+        <main class="flex-grow-1 p-3 p-md-4 position-relative overflow-y-auto no-scrollbar pb-5 w-100" style="max-width: 1200px; padding-bottom: 6rem !important;" id="main-content"></main>
 
         <!-- Bottom Navigation (Mobile Only) -->
-        <div class="fixed bottom-0 w-full flex justify-center z-30 pb-safe pointer-events-none md:hidden">
-            <nav id="bottom-nav" class="glass-nav w-full px-6 py-4 flex justify-around items-center border-t pointer-events-auto shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-            <button onclick="app.switchTab('home')" data-tab="home" class="nav-btn active flex flex-col items-center gap-1 text-slate-400 transition-colors">
-                <i data-lucide="layout-dashboard" class="w-6 h-6 transition-transform"></i>
-                <span class="text-[10px] font-semibold mt-0.5">Dashboard</span>
-            </button>
-            <button onclick="app.switchTab('history')" data-tab="history" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors">
-                <i data-lucide="list-collapse" class="w-6 h-6 transition-transform"></i>
-                <span class="text-[10px] font-medium mt-0.5">Audit Log</span>
-            </button>
-            <a href="/login" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-red-600 transition-colors">
-                <i data-lucide="log-out" class="w-6 h-6 transition-transform"></i>
-                <span class="text-[10px] font-medium mt-0.5">Log Out</span>
-            </a>
-        </nav>
+        <div class="position-fixed bottom-0 w-100 d-flex justify-content-center z-3 pb-safe d-md-none pointer-events-none">
+            <nav id="bottom-nav" class="glass-nav w-100 px-4 py-3 d-flex justify-content-around align-items-center border-top shadow pointer-events-auto" style="pointer-events: auto;">
+                <button onclick="app.switchTab('home')" data-tab="home" class="nav-btn active d-flex flex-column align-items-center text-secondary transition-colors">
+                    <i data-lucide="layout-dashboard" style="width: 24px; height: 24px; transition: transform 0.2s;"></i>
+                    <span class="fw-semibold mt-1" style="font-size: 10px;">Dashboard</span>
+                </button>
+                <button onclick="app.switchTab('history')" data-tab="history" class="nav-btn d-flex flex-column align-items-center text-secondary transition-colors">
+                    <i data-lucide="list-collapse" style="width: 24px; height: 24px; transition: transform 0.2s;"></i>
+                    <span class="fw-medium mt-1" style="font-size: 10px;">Audit Log</span>
+                </button>
+                <a href="/login" class="nav-btn d-flex flex-column align-items-center text-secondary text-decoration-none transition-colors">
+                    <i data-lucide="log-out" style="width: 24px; height: 24px; transition: transform 0.2s;"></i>
+                    <span class="fw-medium mt-1" style="font-size: 10px;">Log Out</span>
+                </a>
+            </nav>
         </div>
 
     </div>
 
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- The Admin SPA Logic -->
     <script src="/js/admin.js"></script>
 </body>

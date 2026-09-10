@@ -1,0 +1,53 @@
+:root {
+    /* Base Primary Color (Deep Purple) */
+    --bs-primary: #9333ea; 
+    --bs-primary-rgb: 147, 51, 234;
+
+    /* Link Colors */
+    --bs-link-color: #9333ea;
+    --bs-link-hover-color: #7e22ce;
+}
+
+/* Override Bootstrap Button Variables for Primary */
+.btn-primary {
+    --bs-btn-bg: #9333ea;
+    --bs-btn-border-color: #9333ea;
+    --bs-btn-hover-bg: #7e22ce;
+    --bs-btn-hover-border-color: #7e22ce;
+    --bs-btn-active-bg: #6b21a8;
+    --bs-btn-active-border-color: #6b21a8;
+    --bs-btn-disabled-bg: #d8b4fe;
+    --bs-btn-disabled-border-color: #d8b4fe;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: #9333ea;
+    --bs-btn-border-color: #9333ea;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #9333ea;
+    --bs-btn-hover-border-color: #9333ea;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #9333ea;
+    --bs-btn-active-border-color: #9333ea;
+}
+
+/* Utility Class Overrides */
+.text-primary {
+    color: #9333ea !important;
+}
+
+.bg-primary {
+    background-color: #9333ea !important;
+}
+
+.bg-primary-subtle {
+    background-color: #f3e8ff !important;
+}
+
+.border-primary-subtle {
+    border-color: #e9d5ff !important;
+}
+
+.border-primary {
+    border-color: #9333ea !important;
+}

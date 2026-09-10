@@ -110,12 +110,8 @@ const app = {
             document.querySelectorAll(`[data-tab="${t}"]`).forEach(btn => {
                 if (t === this.state.currentTab) {
                     btn.classList.add('active');
-                    btn.classList.remove('text-slate-400', 'text-slate-500');
-                    if(btn.closest('.hidden.md\\:flex')) btn.classList.add('text-indigo-600');
                 } else {
-                    btn.classList.remove('active', 'text-indigo-600');
-                    if(btn.closest('.hidden.md\\:flex')) btn.classList.add('text-slate-500');
-                    else btn.classList.add('text-slate-400');
+                    btn.classList.remove('active');
                 }
             });
         });
@@ -129,71 +125,75 @@ const app = {
         if (this.state.currentTab === 'home') content = this.views.adminHome();
         else if (this.state.currentTab === 'history') content = this.views.history();
 
-        main.innerHTML = `<div class="animate-fade-in w-full pb-8">${content}</div>`;
+        main.innerHTML = `<div class="animate-fade-in w-100 pb-5">${content}</div>`;
         if (typeof lucide !== 'undefined') lucide.createIcons();
     },
 
     views: {
         adminHome: () => `
-            <div class="mb-6 mt-2">
-                <h2 class="text-2xl font-bold text-slate-900">System Admin</h2>
-                <p class="text-sm text-slate-500 mt-1">Global oversight & settings</p>
+            <div class="mb-4 mt-2">
+                <h2 class="fs-3 fw-bold text-dark">System Admin</h2>
+                <p class="small text-secondary mt-1">Global oversight & settings</p>
             </div>
             
-            <button onclick="app.modals.openTermConfig()" class="w-full text-left bg-slate-900 rounded-3xl p-6 shadow-xl shadow-slate-900/10 text-white mb-6 relative overflow-hidden group hover:bg-slate-800 transition-colors focus:ring-4 focus:ring-slate-300 outline-none">
-                <div class="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-indigo-500/30 rounded-full blur-2xl group-hover:bg-indigo-500/40 transition-all"></div>
-                <div class="relative z-10 flex justify-between items-center">
+            <button onclick="app.modals.openTermConfig()" class="w-100 text-start bg-dark rounded-4 p-4 shadow-lg text-white mb-4 position-relative overflow-hidden border-0">
+                <div class="position-absolute top-0 end-0 mt-n4 me-n4 bg-primary opacity-25 rounded-circle" style="width: 120px; height: 120px; filter: blur(20px);"></div>
+                <div class="position-relative z-1 d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-widest font-bold mb-1.5">Current Academic Term</p>
-                        <h3 class="text-lg font-bold text-white tracking-wide">${app.state.activeTerm}</h3>
+                        <p class="text-white-50 text-uppercase fw-bold mb-1" style="font-size: 10px; letter-spacing: 1px;">Current Academic Term</p>
+                        <h3 class="fs-5 fw-bold text-white mb-0">${app.state.activeTerm}</h3>
                     </div>
-                    <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur">
-                        <i data-lucide="settings-2" class="w-5 h-5 text-white"></i>
+                    <div class="bg-white bg-opacity-10 p-2 rounded-3">
+                        <i data-lucide="settings-2" class="text-white" style="width: 20px; height: 20px;"></i>
                     </div>
                 </div>
             </button>
 
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Active Courses</h3>
-                <button onclick="app.modals.openCourseConfig()" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">Manage</button>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="fs-6 fw-bold text-dark text-uppercase m-0" style="letter-spacing: 1px;">Active Courses</h3>
+                <button onclick="app.modals.openCourseConfig()" class="btn btn-link text-primary text-decoration-none fw-semibold p-0" style="font-size: 12px;">Manage</button>
             </div>
             
-            <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm mb-8 flex gap-2 flex-wrap">
-                ${app.state.courses.map(c => `<span class="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-100">${c}</span>`).join('')}
-                ${app.state.courses.length === 0 ? '<span class="text-slate-400 text-sm italic">No courses added yet.</span>' : ''}
+            <div class="bg-white border border-secondary-subtle rounded-4 p-4 shadow-sm mb-4 d-flex gap-2 flex-wrap">
+                ${app.state.courses.map(c => `<span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 fs-6">${c}</span>`).join('')}
+                ${app.state.courses.length === 0 ? '<span class="text-secondary small fst-italic">No courses added yet.</span>' : ''}
             </div>
             
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Global Analytics</h3>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="fs-6 fw-bold text-dark text-uppercase m-0" style="letter-spacing: 1px;">Global Analytics</h3>
             </div>
             
-            <div class="grid grid-cols-2 gap-3 mb-8">
-                <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
-                    <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-1.5">Total Collections</p>
-                    <h3 class="text-2xl font-bold text-slate-900 tracking-tight">${app.state.tasks.length}</h3>
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <div class="bg-white border border-secondary-subtle rounded-4 p-4 shadow-sm h-100">
+                        <p class="text-secondary text-uppercase fw-bold mb-1" style="font-size: 10px; letter-spacing: 1px;">Total Collections</p>
+                        <h3 class="fs-2 fw-bold text-dark m-0">${app.state.tasks.length}</h3>
+                    </div>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
-                    <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-1.5">Active Term Collections</p>
-                    <h3 class="text-2xl font-bold text-slate-900 tracking-tight">${app.state.tasks.filter(t => t.term === app.state.activeTerm).length}</h3>
+                <div class="col-6">
+                    <div class="bg-white border border-secondary-subtle rounded-4 p-4 shadow-sm h-100">
+                        <p class="text-secondary text-uppercase fw-bold mb-1" style="font-size: 10px; letter-spacing: 1px;">Active Term Collections</p>
+                        <h3 class="fs-2 fw-bold text-dark m-0">${app.state.tasks.filter(t => t.term === app.state.activeTerm).length}</h3>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Recent Activity</h3>
-                <button onclick="app.switchTab('history')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">View All</button>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="fs-6 fw-bold text-dark text-uppercase m-0" style="letter-spacing: 1px;">Recent Activity</h3>
+                <button onclick="app.switchTab('history')" class="btn btn-link text-primary text-decoration-none fw-semibold p-0" style="font-size: 12px;">View All</button>
             </div>
-            <div class="space-y-3">
+            <div class="d-flex flex-column gap-3">
                 ${app.components.activityFeed().slice(0, 2).join('')}
             </div>
         `,
         history: () => {
             const itemsHTML = app.components.activityFeed(true).join('');
             return `
-            <div class="mb-6 mt-2">
-                <h2 class="text-2xl font-bold text-slate-900">Global Audit Log</h2>
-                <p class="text-sm text-slate-500 mt-1">System-wide activity tracker.</p>
+            <div class="mb-4 mt-2">
+                <h2 class="fs-3 fw-bold text-dark">Global Audit Log</h2>
+                <p class="small text-secondary mt-1">System-wide activity tracker.</p>
             </div>
-            <div class="mt-6 space-y-3">
+            <div class="mt-4 d-flex flex-column gap-3">
                 ${itemsHTML}
             </div>
         `}
@@ -209,14 +209,14 @@ const app = {
                 feed.push({
                     time: task.createdAt,
                     html: `
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex gap-4 items-start">
-                            <div class="bg-indigo-50 p-2 rounded-xl text-indigo-600 shrink-0 border border-indigo-100 mt-0.5">
-                                <i data-lucide="file-plus" class="w-4 h-4"></i>
+                        <div class="bg-white p-3 p-md-4 rounded-4 shadow-sm border border-secondary-subtle d-flex gap-3 align-items-start">
+                            <div class="bg-primary-subtle p-2 rounded-3 text-primary flex-shrink-0 border border-primary-subtle mt-1">
+                                <i data-lucide="file-plus" style="width: 16px; height: 16px;"></i>
                             </div>
                             <div>
-                                <p class="text-sm text-slate-900 font-medium">New collection created: ${task.title}</p>
-                                <p class="text-xs text-slate-500 mt-1">Course ${task.course} • Term: ${task.term}</p>
-                                <p class="text-[10px] text-slate-400 mt-1">By <span class="font-bold">${task.createdBy || '@unknown'}</span> • ${new Date(task.createdAt).toLocaleString()}</p>
+                                <p class="small text-dark fw-medium m-0">New collection created: ${task.title}</p>
+                                <p class="text-secondary m-0" style="font-size: 12px;">Course ${task.course} &bull; Term: ${task.term}</p>
+                                <p class="text-secondary mt-1 mb-0" style="font-size: 10px;">By <span class="fw-bold">${task.createdBy || '@unknown'}</span> &bull; ${new Date(task.createdAt).toLocaleString()}</p>
                             </div>
                         </div>
                     `
@@ -230,14 +230,14 @@ const app = {
                         feed.push({
                             time: payment.time,
                             html: `
-                                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex gap-4 items-start">
-                                    <div class="bg-emerald-50 p-2 rounded-xl text-emerald-600 shrink-0 border border-emerald-100 mt-0.5">
-                                        <i data-lucide="check" class="w-4 h-4"></i>
+                                <div class="bg-white p-3 p-md-4 rounded-4 shadow-sm border border-secondary-subtle d-flex gap-3 align-items-start">
+                                    <div class="bg-success-subtle p-2 rounded-3 text-success flex-shrink-0 border border-success-subtle mt-1">
+                                        <i data-lucide="check" style="width: 16px; height: 16px;"></i>
                                     </div>
                                     <div>
-                                        <p class="text-sm text-slate-900 font-medium">Payment received from <span class="font-bold">${studentId}</span></p>
-                                        <p class="text-xs text-slate-500 mt-1">Collection: ${task.title} • Course: ${task.course}</p>
-                                        <p class="text-[10px] text-slate-400 mt-1">Processed by <span class="font-bold">${payment.by}</span> • ${new Date(payment.time).toLocaleString()}</p>
+                                        <p class="small text-dark fw-medium m-0">Payment received from <span class="fw-bold">${studentId}</span></p>
+                                        <p class="text-secondary m-0" style="font-size: 12px;">Collection: ${task.title} &bull; Course: ${task.course}</p>
+                                        <p class="text-secondary mt-1 mb-0" style="font-size: 10px;">Processed by <span class="fw-bold">${payment.by}</span> &bull; ${new Date(payment.time).toLocaleString()}</p>
                                     </div>
                                 </div>
                             `
@@ -250,7 +250,7 @@ const app = {
             feed.sort((a, b) => b.time - a.time);
             
             if (feed.length === 0) {
-                return [`<div class="text-center py-10"><p class="text-slate-500">No activity recorded yet.</p></div>`];
+                return [`<div class="text-center py-5"><p class="text-secondary">No activity recorded yet.</p></div>`];
             }
 
             return feed.map(item => item.html);
@@ -271,7 +271,7 @@ const app = {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin mx-auto"></i>';
+            btn.innerHTML = '<i data-lucide="loader-2" class="spinner-border spinner-border-sm mx-auto"></i>';
             btn.disabled = true;
 
             const input = document.getElementById('new-course-name');
@@ -316,16 +316,16 @@ const app = {
         openConfirm(title, message, onConfirm, onCancel) {
             const c = this.getConfirmContainer();
             const html = `
-            <div class="fixed inset-0 z-[60] flex flex-col justify-center items-center bg-slate-900/60 backdrop-blur-sm animate-fade-in px-4">
-                <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-slide-up flex flex-col relative">
-                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4">
-                        <i data-lucide="help-circle" class="w-6 h-6"></i>
+            <div class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center modal-backdrop-blur animate-fade-in px-3" style="z-index: 1060;">
+                <div class="bg-white w-100 rounded-4 p-4 shadow-lg animate-slide-up d-flex flex-column position-relative" style="max-width: 400px;">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 48px; height: 48px;">
+                        <i data-lucide="help-circle" style="width: 24px; height: 24px;"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">${title}</h3>
-                    <p class="text-sm text-slate-500 mb-6">${message}</p>
-                    <div class="flex gap-3">
-                        <button id="confirm-cancel-btn" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 rounded-xl transition-colors">Cancel</button>
-                        <button id="confirm-ok-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition-colors">Confirm</button>
+                    <h3 class="fs-5 fw-bold text-dark mb-2">${title}</h3>
+                    <p class="small text-secondary mb-4">${message}</p>
+                    <div class="d-flex gap-2">
+                        <button id="confirm-cancel-btn" class="btn btn-light flex-fill fw-semibold py-2 rounded-3 text-secondary border">Cancel</button>
+                        <button id="confirm-ok-btn" class="btn btn-primary flex-fill fw-semibold py-2 rounded-3">Confirm</button>
                     </div>
                 </div>
             </div>`;
@@ -364,17 +364,17 @@ const app = {
         },
         openTermConfig() {
             const html = `
-            <div class="fixed inset-0 z-50 flex flex-col justify-end md:justify-center md:items-center bg-slate-900/40 backdrop-blur-sm animate-fade-in" onclick="if(event.target === this) app.modals.close()">
-                <div id="modal-panel" class="bg-white w-full md:max-w-lg rounded-t-[32px] md:rounded-3xl p-6 animate-slide-up shadow-2xl h-auto md:max-h-[90vh] flex flex-col relative pb-safe md:pb-6">
-                    <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 md:hidden"></div>
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-bold text-slate-900">Active Term</h3>
-                        <button onclick="app.modals.close()" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <div class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-end justify-content-md-center align-items-md-center modal-backdrop-blur animate-fade-in" style="z-index: 1050;" onclick="if(event.target === this) app.modals.close()">
+                <div id="modal-panel" class="bg-white w-100 p-4 animate-slide-up shadow-lg d-flex flex-column position-relative" style="max-width: 500px; border-radius: 2rem 2rem 0 0; max-height: 90vh;">
+                    <div class="bg-secondary-subtle rounded-pill mx-auto mb-3 d-md-none" style="width: 48px; height: 6px;"></div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fs-4 fw-bold text-dark m-0">Active Term</h3>
+                        <button type="button" onclick="app.modals.close()" class="btn btn-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
                     </div>
                     
-                    <p class="text-sm text-slate-500 mb-6">Advancing the term will automatically archive all current collections on the public page. This action affects the entire system.</p>
+                    <p class="small text-secondary mb-4">Advancing the term will automatically archive all current collections on the public page. This action affects the entire system.</p>
 
-                    <div class="space-y-3 mb-8 max-h-60 overflow-y-auto pr-2">
+                    <div class="d-flex flex-column gap-3 mb-3 max-h-60 overflow-y-auto pr-2">
                         ${['1st Semester, A.Y. 2023-2024', '2nd Semester, A.Y. 2023-2024', '1st Semester, A.Y. 2024-2025'].map(term => `
                             <button onclick="
                                 app.modals.openConfirm(
@@ -382,9 +382,9 @@ const app = {
                                     'Are you sure you want to advance the system term to ${term}? All active collections will be archived.',
                                     () => { app.actions.changeTerm('${term}'); }
                                 );
-                            " class="w-full text-left p-4 rounded-2xl border ${app.state.activeTerm === term ? 'border-indigo-600 bg-indigo-50' : 'border-slate-200 bg-white hover:border-indigo-300'} transition-all flex justify-between items-center group">
-                                <span class="font-medium ${app.state.activeTerm === term ? 'text-indigo-700 font-bold' : 'text-slate-700'}">${term}</span>
-                                ${app.state.activeTerm === term ? `<i data-lucide="check-circle-2" class="w-5 h-5 text-indigo-600"></i>` : `<i data-lucide="chevron-right" class="w-5 h-5 text-slate-300 group-hover:text-indigo-400"></i>`}
+                            " class="btn w-100 text-start p-3 rounded-4 border ${app.state.activeTerm === term ? 'border-primary bg-primary-subtle' : 'border-secondary-subtle bg-white'} d-flex justify-content-between align-items-center">
+                                <span class="fw-medium ${app.state.activeTerm === term ? 'text-primary fw-bold' : 'text-dark'}">${term}</span>
+                                ${app.state.activeTerm === term ? `<i data-lucide="check-circle-2" class="text-primary" style="width: 20px; height: 20px;"></i>` : `<i data-lucide="chevron-right" class="text-secondary opacity-50" style="width: 20px; height: 20px;"></i>`}
                             </button>
                         `).join('')}
                     </div>
@@ -394,37 +394,39 @@ const app = {
         },
         openCourseConfig() {
             const html = `
-            <div class="fixed inset-0 z-50 flex flex-col justify-end md:justify-center md:items-center bg-slate-900/40 backdrop-blur-sm animate-fade-in" onclick="if(event.target === this) app.modals.close()">
-                <div id="modal-panel" class="bg-white w-full md:max-w-lg rounded-t-[32px] md:rounded-3xl p-6 animate-slide-up shadow-2xl h-auto md:max-h-[90vh] flex flex-col relative pb-safe md:pb-6">
-                    <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 md:hidden"></div>
-                    <div class="flex justify-between items-center mb-6">
+            <div class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-end justify-content-md-center align-items-md-center modal-backdrop-blur animate-fade-in" style="z-index: 1050;" onclick="if(event.target === this) app.modals.close()">
+                <div id="modal-panel" class="bg-white w-100 p-4 animate-slide-up shadow-lg d-flex flex-column position-relative" style="max-width: 500px; border-radius: 2rem 2rem 0 0; max-height: 90vh;">
+                    <div class="bg-secondary-subtle rounded-pill mx-auto mb-3 d-md-none" style="width: 48px; height: 6px;"></div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h3 class="text-xl font-bold text-slate-900">Manage Courses</h3>
-                            <p class="text-sm text-slate-500 mt-1">Active Term: ${app.state.activeTerm}</p>
+                            <h3 class="fs-4 fw-bold text-dark m-0">Manage Courses</h3>
+                            <p class="small text-secondary mt-1 mb-0">Active Term: ${app.state.activeTerm}</p>
                         </div>
-                        <button onclick="app.modals.close()" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+                        <button type="button" onclick="app.modals.close()" class="btn btn-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
                     </div>
                     
-                    <form onsubmit="app.actions.addCourse(event)" class="mb-6 space-y-4">
+                    <form onsubmit="app.actions.addCourse(event)" class="mb-4 d-flex flex-column gap-3">
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">New Course / Subject</label>
-                            <input type="text" id="new-course-name" required placeholder="e.g. CCS114" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-900 uppercase">
+                            <label class="form-label text-secondary fw-bold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 1px;">New Course / Subject</label>
+                            <input type="text" id="new-course-name" required placeholder="e.g. CCS114" class="form-control form-control-lg bg-light border-secondary-subtle rounded-4 fs-6 fw-medium text-dark px-3 py-2 text-uppercase">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Classlist (CSV)</label>
-                            <input type="file" id="new-course-csv" accept=".csv" required class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
-                            <p class="text-[10px] text-slate-400 mt-1">Format: StudentID, Full Name</p>
+                            <label class="form-label text-secondary fw-bold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 1px;">Classlist (CSV)</label>
+                            <input type="file" id="new-course-csv" accept=".csv" required class="form-control form-control-lg bg-light border-secondary-subtle rounded-4 fs-6 text-dark px-3 py-2">
+                            <p class="text-secondary mt-1 mb-0" style="font-size: 10px;">Format: StudentID, Full Name</p>
                         </div>
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 rounded-2xl shadow-lg shadow-indigo-600/30 transition-transform active:scale-[0.98]">Add Course</button>
+                        <div class="pt-2">
+                            <button type="submit" class="btn btn-primary w-100 fw-bold py-3 rounded-4 shadow-sm">Add Course</button>
+                        </div>
                     </form>
 
-                    <div class="space-y-3 mb-2 max-h-60 overflow-y-auto pr-2">
+                    <div class="d-flex flex-column gap-2 mb-2 max-h-60 overflow-y-auto pr-2">
                         ${app.state.courses.map(c => `
-                            <div class="w-full text-left p-4 rounded-2xl border border-slate-200 bg-white flex justify-between items-center">
-                                <span class="font-medium text-slate-700">${c}</span>
+                            <div class="w-100 text-start p-3 rounded-4 border border-secondary-subtle bg-white d-flex justify-content-between align-items-center">
+                                <span class="fw-medium text-dark">${c}</span>
                             </div>
                         `).join('')}
-                        ${app.state.courses.length === 0 ? '<p class="text-slate-500 text-sm italic text-center py-4">No courses available.</p>' : ''}
+                        ${app.state.courses.length === 0 ? '<p class="text-secondary small fst-italic text-center py-3">No courses available.</p>' : ''}
                     </div>
                 </div>
             </div>`;
@@ -437,16 +439,23 @@ const app = {
         if(!container) {
             container = document.createElement('div');
             container.id = 'toast-container';
-            container.className = 'absolute bottom-24 left-4 right-4 z-50 flex flex-col gap-2 pointer-events-none';
+            container.className = 'position-fixed bottom-0 start-50 translate-middle-x d-flex flex-column gap-2 pointer-events-none w-100 px-3';
+            container.style.paddingBottom = '5rem'; // Above bottom nav
+            container.style.maxWidth = '400px';
+            container.style.zIndex = '1070';
             document.getElementById('app-root').appendChild(container);
         }
         
         const toast = document.createElement('div');
-        const colors = type === 'success' ? 'bg-slate-900 text-white' : 'bg-red-600 text-white';
+        const colors = type === 'success' ? 'bg-dark text-white' : 'bg-danger text-white';
         const icon = type === 'success' ? 'check-circle' : 'alert-circle';
         
-        toast.className = `${colors} p-4 rounded-2xl shadow-xl flex items-center gap-3 animate-slide-up origin-bottom`;
-        toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 opacity-90"></i><p class="font-medium text-sm flex-1">${message}</p>`;
+        toast.className = `toast align-items-center border-0 show w-100 ${colors} rounded-4 shadow-lg animate-slide-up mb-2`;
+        toast.innerHTML = `
+            <div class="d-flex p-3 align-items-center gap-3">
+                <i data-lucide="${icon}" style="width: 20px; height: 20px; opacity: 0.9;"></i>
+                <div class="toast-body p-0 fw-medium fs-6 flex-grow-1">${message}</div>
+            </div>`;
         
         container.appendChild(toast);
         lucide.createIcons();
@@ -460,4 +469,3 @@ const app = {
 };
 
 document.addEventListener('DOMContentLoaded', () => app.init());
-document.head.insertAdjacentHTML('beforeend', '<style>.pb-safe { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }</style>');
